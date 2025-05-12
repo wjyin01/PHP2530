@@ -43,3 +43,8 @@ mcmc_trace(posterior_array,
   theme_minimal(base_size = 11) +
   labs(title = "Trace Plots for Selected Parameters",
        y = "Parameter Value", x = "Iteration")
+
+
+# ACF
+mcmc_acf(posterior_array, pars = c("beta[2,1]", "phi[1]"))
+
