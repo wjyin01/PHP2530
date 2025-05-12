@@ -41,7 +41,7 @@ sm <- stan_model("dm_regression.stan")
 cat(Sys.time(), ": Sampling...\n")
 fit <- sampling(sm, data = stan_data, chains = 4, iter = 1000, warmup = 500, refresh = 100)
 
-# ------------ 3. Save results ------------------------------
+# Save results
 cat(Sys.time(), ": Saving fit\n")
 saveRDS(fit, "../results/fit_dm_regression_qc.rds")
 
