@@ -6,7 +6,7 @@ This repository contains the final project for the course *PHP2530: Bayesian Sta
 
 The human gut microbiome plays a critical role in immune regulation. Crohn's disease has been associated with microbial dysbiosis, particularly in pediatric patients. Using 16S rRNA sequencing data from the RISK cohort, we:
 
-- Implemented a hierarchical Dirichlet–Multinomial regression in Stan.
+- Implemented a hierarchical Dirichlet–Multinomial regression (which allows parameters vary with covariates in sampledata) in Stan.
 - Adjusted for covariates (diagnosis, age, sex) at the sample level.
 - Quantified differential abundance using posterior summaries.
 - Validated results using frequentist approaches.
