@@ -7,7 +7,9 @@ library(tidyverse)
 
 otu_mat <- t(as(otu_table(ps_qc), "matrix"))  # taxa x samples
 otu_mat <- t(otu_mat)  # samples x taxa
-meta_df <- as(sample_data(ps_qc), "data.frame")
+meta_df <- data.frame(sample_data(ps_qc)) %>%
+  mutate(diagnosis = factor(diagnosis))
+
 
 # Bray-Curtis distance
 bc_dist <- vegdist(otu_mat, method = "bray")
@@ -65,3 +67,46 @@ res_df <- as.data.frame(res) %>%
   arrange(padj)
 
 print(head(res_df, 10))
+
+
+# Visualization
+library(ggplot2)
+
+# PCoA on Bray-Curtis
+ordination <- ordinate(ps_qc, method = "PCoA", distance = "bray")
+
+# Plot
+plot_ordination(ps_qc, ordination, color = "diagnosis") +
+  geom_point(size = 2, alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "PCoA (Bray-Curtis) of Microbiome Composition",
+       color = "Diagnosis")
+
+  
+# Create effect size: log fold change between medians
+group_vals <- sample_data(ps_qc)$diagnosis
+otu_df <- as.data.frame(t(otu_table(ps_qc)))
+
+group1 <- "CD"
+group2 <- "no"
+keep <- group_vals %in% c(group1, group2)
+
+logfc <- apply(otu_df[, keep], 1, function(x) {
+  log2(median(x[group_vals[keep] == group1]) + 1) - 
+    log2(median(x[group_vals[keep] == group2]) + 1)
+})
+
+wilcox_df <- wilcox_results %>%
+  filter(group1 == group1, group2 == group2) %>%
+  mutate(log2FC = logfc[match(taxon, names(logfc))],
+         sig = padj < 0.05)
+
+# Volcano plot
+ggplot(wilcox_df, aes(x = log2FC, y = -log10(pval), color = sig)) +
+  geom_point(alpha = 0.8) +
+  theme_minimal() +
+  scale_color_manual(values = c("black", "red")) +
+  labs(title = "Wilcoxon Volcano Plot: CD vs Control",
+       x = "Log2 Fold Change (Median)",
+       y = "-log10(p-value)",
+       color = "Significant")
